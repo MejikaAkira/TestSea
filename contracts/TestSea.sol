@@ -36,6 +36,7 @@ contract TestSea is ERC721Enumerable, Ownable {
         _burn(tokenId);
     }
 
+    // modify the MaxSupply
     function setMaxSupply(uint256 _value) public onlyOwner {
         maxSupply = _value;
     }

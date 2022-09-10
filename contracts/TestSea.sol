@@ -10,14 +10,15 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract TestSea is ERC721Enumerable, Ownable {
     uint256 public maxSupply = 500;
     using Strings for uint256;
-    mapping(uint256 => string) private _tokenURIs;
     string public message;
     string public uri;
 
     constructor() ERC721("TestSea", "TS") {}
 
-    // multiple mint function
-    function Bulkmint(address to, uint256 _amount) public onlyOwner {
+
+    // multiple mint function by owner or operator
+    function Bulkmint(address to, uint256 _amount) public {
+        require(msg.sender == owner() || isApprovedForAll(owner(), _msgSender()), "caller is not owner nor operator");
         for (uint i = 0; i < _amount; i++) {
             require(totalSupply() < maxSupply, "over maxSupply mint");
             uint mintIndex = totalSupply();
@@ -25,8 +26,9 @@ contract TestSea is ERC721Enumerable, Ownable {
         }
     }
 
-    // empty Id token can mint (once satogaeri Id or new Id)
-    function mint(address to, uint256 tokenId) public onlyOwner {
+    // empty Id token can mint (once satogaeri Id or new Id by owner or operator)
+    function mint(address to, uint256 tokenId) public {
+        require(msg.sender == owner());
         require(totalSupply() < maxSupply, "over maxSupply mint");
         _mint(to, tokenId);
     }
@@ -36,7 +38,6 @@ contract TestSea is ERC721Enumerable, Ownable {
         _burn(tokenId);
     }
 
-    // modify the MaxSupply
     function setMaxSupply(uint256 _value) public onlyOwner {
         maxSupply = _value;
     }
@@ -50,6 +51,7 @@ contract TestSea is ERC721Enumerable, Ownable {
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         return string(abi.encodePacked(uri, tokenId.toString(), ".json"));
     }
+
 
     // engrave the message into blockchain
     function setMessage(string memory newMessage) public onlyOwner {
